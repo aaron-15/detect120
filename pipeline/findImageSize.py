@@ -21,7 +21,7 @@ import json
          image size dictionary upon success.
 """
 
-OUTPUTDIR = "../outputs/"
+OUTPUTDIR = "../outputs_2/"
 pl.ion()
 
 
@@ -79,8 +79,7 @@ def findsize(imgfile, nbands = 3, filepattern = None, imsizefile = None):
     divlist = list(divisorGenerator(img.size / nbands))
     print (len(divlist))
     for i in range(int(len(divlist)/2), 0, -1):
-        # print divlist[i], divlist[-i-1], divlist[i] *
-        # divlist[-i-1], img.size
+        print (divlist[i], divlist[-i-1], divlist[i] * divlist[-i-1], img.size)
         pl.imshow(img.reshape(divlist[i], divlist[-i-1], nbands))
         pl.draw()
         if raw_input("is this the right size?").lower().startswith('y'):

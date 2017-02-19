@@ -14,6 +14,7 @@ import optparse
 import matplotlib.gridspec as gridspec
 from scipy import optimize
 from scipy.special import gammaln
+from scipy import ndimage
 
 try:
     raw_input
@@ -150,7 +151,7 @@ if __name__ == '__main__':
 
     # gaussian filter first
     overgaussstack = (stack.astype(float) -
-                      sp.ndimage.gaussian_filter(stack.astype(float),
+                      ndimage.gaussian_filter(stack.astype(float),
                                                  (GS, GS, 0)))
 
     # reset the limits
@@ -241,10 +242,10 @@ if __name__ == '__main__':
                          '-', color = 'IndianRed')
         ax3.set_xlim(pc[0], max(pc[-1], thr))
     pl.ioff()
-    newdata = sp.ndimage.filters.median_filter(\
+    newdata = ndimage.filters.median_filter(\
             (hpfimg.mean(-1) > thr).astype(float), 4).astype(np.uint8)
 
-    labels, nlabels = sp.ndimage.measurements.label(newdata)
+    labels, nlabels = ndimage.measurements.label(newdata)
 
     print("Found %d individual labels"%nlabels)
 
@@ -278,7 +279,7 @@ if __name__ == '__main__':
 
     fig = pl.figure()
 
-    fig.imshow(clrs, interpolation = 'nearest')
+    pl.imshow(clrs, interpolation = 'nearest')
     np.save(args[0].replace(".npy", "_labelledwindows.npy"), clrs)
     pl.xlim(0, pl.xlim()[1])
     pl.ylim(pl.ylim()[0], 0)
@@ -290,13 +291,13 @@ if __name__ == '__main__':
     if options.showme: pl.show()
     pl.close()
     coords = np.array(
-        sp.ndimage.measurements.center_of_mass(newdata, labels,
+        ndimage.measurements.center_of_mass(newdata, labels,
                                                np.where(
                                                    goodwindows))).squeeze()
     mask = np.array([labels == i for i in range(1, labels.max() + 1)])
     fig = pl.figure()
 
-    fig.imshow(clrs, interpolation = 'nearest')
+    pl.imshow(clrs, interpolation = 'nearest')
     pl.xlim(0, pl.xlim()[1])
     pl.ylim(pl.ylim()[0], 0)
 
