@@ -31,10 +31,10 @@ pl.rcParams.update(s)
 
 ### EXTRACT: if True extracts the lightcurves from imaging data
 EXTRACT = True
-EXTRACT = False
+#EXTRACT = False
 
 
-OUTPUTDIR = '../outputs/'
+OUTPUTDIR = '../outputs_2/'
 #enable parallel processing
 NOPARALLEL = True
 #NOPARALLEL = False
