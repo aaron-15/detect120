@@ -21,7 +21,7 @@ try:
 except NameError:
     #  Python 3
     raw_input = input
-NGOOD = 5
+NGOOD = 3
 
 
 def getknuth(m, data, N=None):
