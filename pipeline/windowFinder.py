@@ -21,6 +21,7 @@ try:
 except NameError:
     #  Python 3
     raw_input = input
+NGOOD = 5
 
 
 def getknuth(m, data, N=None):
@@ -150,9 +151,14 @@ if __name__ == '__main__':
     stack = np.load(args[0])
 
     # gaussian filter first
-    overgaussstack = (stack.astype(float) -
-                      ndimage.gaussian_filter(stack.astype(float),
-                                                 (GS, GS, 0)))
+    if len(stack.shape) == 2:
+        overgaussstack = (stack.astype(float) -
+                          ndimage.gaussian_filter(stack.astype(float),
+                                                  (GS, GS)))
+    else:
+        overgaussstack = (stack.astype(float) -
+                          ndimage.gaussian_filter(stack.astype(float),
+                                                  (GS, GS, 0)))
 
     # reset the limits
     hpfimg = overgaussstack - overgaussstack.min()
@@ -186,7 +192,13 @@ if __name__ == '__main__':
         ax1 = stackfig.add_subplot(gs[0, 1])
         ax1.set_title("thresholded image, threshold: %.2f"%thr,
                       fontsize = 10)
-        ax1.imshow(hpfimg.mean(-1) > thr, interpolation = 'nearest',
+        
+        if len(hpfimg.shape) == 3: 
+            meanimg = hpfimg.mean(-1)
+        else: 
+            meanimg = hpfimg            
+
+        ax1.imshow(meanimg > thr, interpolation = 'nearest',
                    cmap = 'gist_gray')
         ax1.axis('off')
         ax3 = stackfig.add_subplot(gs[1, :])
@@ -220,8 +232,12 @@ if __name__ == '__main__':
             ax0.imshow(hpfimg.clip(thr / 3, 255).astype(np.uint8),
                        interpolation = 'nearest')
             ax1 = stackfig.add_subplot(gs[0, 1])
-            ax1.imshow(hpfimg.mean(-1) > thr,
-                       interpolation = 'nearest',
+            if len(hpfimg.shape) == 3: 
+                meanimg = hpfimg.mean(-1)
+            else: 
+                meanimg = hpfimg            
+
+            ax1.imshow(meanimg > thr, interpolation = 'nearest',
                        cmap = 'gist_gray')
             ax3 = stackfig.add_subplot(gs[1, :])
             ax3.bar(bins[:-1], countsnorm,  widths,
@@ -242,17 +258,21 @@ if __name__ == '__main__':
                          '-', color = 'IndianRed')
         ax3.set_xlim(pc[0], max(pc[-1], thr))
     pl.ioff()
-    newdata = ndimage.filters.median_filter(\
-            (hpfimg.mean(-1) > thr).astype(float), 4).astype(np.uint8)
+    if len(hpfimg.shape) == 3:
+        newdata = ndimage.filters.median_filter(\
+            (meanimg > thr).astype(float), 4).astype(np.uint8)
+    else :
+        newdata = ndimage.filters.median_filter(\
+            (meanimg > thr).astype(float), 4).astype(np.uint8)
 
     labels, nlabels = ndimage.measurements.label(newdata)
 
     print("Found %d individual labels"%nlabels)
+    
+    # only choose windows larger than 10 pixels to remove noise specks
+    goodwindows = [(labels == i).sum() > NGOOD for i in range(nlabels)]
 
-    # only choose windows larger than 10 pixels to remove noise speks
-    goodwindows = [(labels == i).sum() > 10 for i in range(nlabels)]
-
-    print("Found %d individual labels with > 10 pixels"%np.sum(goodwindows))
+    print("Found %d individual labels with > %d pixels"%(NGOOD, np.sum(goodwindows)))
 
     # remove bad windows
     for i in range(nlabels):
