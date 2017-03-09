@@ -160,15 +160,17 @@ if __name__ == '__main__':
                           ndimage.gaussian_filter(stack.astype(float),
                                                   (GS, GS, 0)))
 
+
     # reset the limits
     hpfimg = overgaussstack - overgaussstack.min()
     hpfimg /= hpfimg.max()
 
+
     hpfimg *= 255
     flathpfimg = hpfimg.flatten()
-    pcs = np.array([16, 50, 84, 90, 95, 99.5])
+    pcs = np.array([16, 50, 84, 90, 95, 99.3])
     pc = np.percentile(flathpfimg, pcs)
-    if options.noauto: thr = pc[pcs == 90]
+    if options.noauto: thr = pc[pcs == 99.3]
     else: thr = options.thr
 
     numbins = int(knuthn(flathpfimg) + 0.5)
@@ -190,7 +192,7 @@ if __name__ == '__main__':
                       fontsize = 10)
         ax0.axis('off')
         ax1 = stackfig.add_subplot(gs[0, 1])
-        ax1.set_title("thresholded image, threshold: %.2f"%thr,
+        ax1.set_title("thresholded image, threshold: %.3f"%thr,
                       fontsize = 10)
         
         if len(hpfimg.shape) == 3: 
@@ -272,7 +274,7 @@ if __name__ == '__main__':
     # only choose windows larger than 10 pixels to remove noise specks
     goodwindows = [(labels == i).sum() > NGOOD for i in range(nlabels)]
 
-    print("Found %d individual labels with > %d pixels"%(NGOOD, np.sum(goodwindows)))
+    print("Found %d individual labels with > %d pixels"%(np.sum(goodwindows),NGOOD))
 
     # remove bad windows
     for i in range(nlabels):
@@ -304,7 +306,7 @@ if __name__ == '__main__':
     pl.xlim(0, pl.xlim()[1])
     pl.ylim(pl.ylim()[0], 0)
     # pl.draw()
-    pl.title("gaussian std %d, \threshold %.1f, labels %d"%(GS,
+    pl.title("gaussian std %d, threshold %.1f, labels %d"%(GS,
                                                            thr,
                                             np.sum(goodwindows)))
     pl.savefig(args[0].replace(".npy", "_labelledwindows.pdf"))
